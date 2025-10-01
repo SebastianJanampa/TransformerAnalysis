@@ -45,7 +45,7 @@ with torch.inference_mode(), torch.autocast(device, dtype=torch.bfloat16, enable
 
 # Plot figures
 fig = plt.figure(figsize=(24, 36))
-plt.subplot(1, 2, 1)
+plt.subplot(1, 3, 1)
 plt.imshow(img)
 plt.axis('off')
 
@@ -56,11 +56,11 @@ feat = feats[0]
 x = feat.detach().cpu().float()
 pca = do_pca(x)
 
-plt.subplot(2, 2, 2)
+plt.subplot(1, 3, 2)
 plt.imshow(pca, cmap='viridis')
 plt.axis('off')
 
-plt.subplot(2, 2, 4)
+plt.subplot(1, 3, 3)
 plt.imshow(x[0], cmap='viridis')
 plt.axis('off')
 

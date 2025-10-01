@@ -104,7 +104,7 @@ with torch.inference_mode(), torch.autocast(device, dtype=torch.bfloat16, enable
     
 # Visualization
 num_points = len(selected_points)
-fig, axes = plt.subplots(num_points, 2, figsize=(8, 4 * num_points))
+fig, axes = plt.subplots(2, num_points, figsize=(8, 4 * num_points))
 
 # If only one point is selected, axes is not a 2D array, so we wrap it
 if num_points == 1:
@@ -112,9 +112,8 @@ if num_points == 1:
 
 for i in range(num_points):
     # Plot original image with the selected point
-    ax_img = axes[i][0]
+    ax_img = axes[0][i]
     ax_img.imshow(img)
-    # ax_img.set_title(f"Input Image (Point {i+1})")
     ax_img.axis('off')
     
     # Overlay the selected point as a red '+'
@@ -122,12 +121,10 @@ for i in range(num_points):
     ax_img.plot(point_x, point_y, 'r+', markersize=15, markeredgewidth=2)
 
     # Plot the attention heatmap
-    ax_attn = axes[i][1]
+    ax_attn = axes[1][i]
     heatmap = attention_weights[i].cpu().numpy()
     im = ax_attn.imshow(heatmap, cmap='viridis')
-    # ax_attn.set_title(f"Attention Map for Point {i+1}")
     ax_attn.axis('off')
-    # fig.colorbar(im, ax=ax_attn)
 
 plt.tight_layout()
 plt.suptitle(f"Attention map for Block {block_idx}")

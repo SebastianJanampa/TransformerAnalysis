@@ -24,7 +24,7 @@ First, clone this repository and create the conda environment.
 
 ```shell
 # Clone this project
-git clone [https://github.com/SebastianJanampa/TransformerAnalysis.git](https://github.com/SebastianJanampa/TransformerAnalysis.git)
+git clone https://github.com/SebastianJanampa/TransformerAnalysis.git
 cd TransformerAnalysis
 
 # Create and activate the conda environment
@@ -35,7 +35,7 @@ conda activate ssiai
 Next, clone the official DINOv3 repository and install all necessary requirements.
 ```shel
 # Clone the DINOv3 dependency
-git clone [https://github.com/facebookresearch/dinov3.git](https://github.com/facebookresearch/dinov3.git)
+git clone https://github.com/facebookresearch/dinov3.git
 
 # Install Python packages
 pip install -r requirements.txt
