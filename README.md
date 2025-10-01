@@ -13,10 +13,12 @@
 # Create environment
 conda create -n ssiai python=3.12
 conda activate ssiai
+```
 
+### Requirements
+```shell
 # Download DINOv3 repo
 git clone https://github.com/facebookresearch/dinov3.git
-
 # Install requirements
 pip install -r requirements.txt
 cd dinov3
@@ -25,6 +27,15 @@ cd ..
 ```
 ### DINOv3 weights
 Please, refer to [DINOv3](https://github.com/facebookresearch/dinov3?tab=readme-ov-file#pretrained-models) to download the model checkpoints. 
+Store the `.pt` file on this way
+```
+── dinov3
+├── checkpoints
+|  └── dinov3
+|  |   └── <checkpoints.pth>
+├── images
+└── utils
+```
 
 
 
