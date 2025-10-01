@@ -74,11 +74,20 @@ This script lets you interactively click on a point in an image to generate its 
 ```shell
 python self_attention_viz.py
 ```
+
+<div align="center">
+  	<img src="https://github.com/SebastianJanampa/TransformerAnalysis/blob/main/assets/attention_map.jpg" width=1000 >
+</div>
+
 ### **Visualizing Feature Maps**
 
 This script visualizes the model's deep features using two methods:
 1.  **PCA Visualization**: Compresses the features into a 3-channel image, revealing the model's unsupervised semantic segmentation.
 2.  **Single Feature Map**: Shows a heatmap for a single feature's activation.
+
+<div align="center">
+  	<img src="https://github.com/SebastianJanampa/TransformerAnalysis/blob/main/assets/feature_map.jpg" width=1000 >
+</div>
 
 ```shell
 python feature_map_viz.py
