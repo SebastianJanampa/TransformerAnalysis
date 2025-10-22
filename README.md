@@ -67,12 +67,12 @@ TransformerAnalysis/
 
 Here’s how to run the main visualization scripts.
 
-### **Visualizing Self-Attention**
+### **Visualizing Attention Map**
 
-This script lets you interactively click on a point in an image to generate its corresponding self-attention map. This reveals which parts of the image the model considers most relevant to the point you selected.
+This script lets you interactively click on a point in an image to generate its corresponding attention map. This reveals which parts of the image the model considers most relevant to the point you selected.
 
 ```shell
-python self_attention_viz.py
+python attn_map_viz.py
 ```
 
 <div align="center">
@@ -83,7 +83,7 @@ python self_attention_viz.py
 
 This script visualizes the model's deep features using two methods:
 1.  **PCA Visualization**: Compresses the features into a 3-channel image, revealing the model's unsupervised semantic segmentation.
-2.  **Single Feature Map**: Shows a heatmap for a single feature's activation.
+2.  **Single Feature Map**: Shows a single channel of a feature map.
 
 <div align="center">
   	<img src="https://github.com/SebastianJanampa/TransformerAnalysis/blob/main/assets/feature_map.jpg" width=1000 >
