@@ -24,7 +24,7 @@ def main(args):
     model = model.to(device)
 
     if args.svd:
-        model = eigenval_modification(model, args.printing, args.threshold)
+        model = eigenval_modification(model, args.printing, args.threshold, args.svd_method)
 
     # DINOv3 model parameters
     num_heads = model.num_heads
@@ -76,6 +76,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--svd", action="store_true",)
+    parser.add_argument("--svd_method", type=str, default='cond_number')
     parser.add_argument("-p", "--printing", action="store_true")
     parser.add_argument("-t", "--threshold", type=int, default=10)
     args = parser.parse_args()

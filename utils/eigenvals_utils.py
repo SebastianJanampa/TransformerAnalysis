@@ -2,20 +2,25 @@ import os
 import torch
 import numpy as np
 
-def thresholding(eigenvals,  thresholding):
-    max_sigma = eigenvals[0]
-    n = len(eigenvals) - 1
-    cond_num = max_sigma / eigenvals[n]
-    while n > 4 and cond_num > thresholding:
-        n-=1
-        cond_num= max_sigma / eigenvals[n]
-    eigenvals = eigenvals[:n+1]
+def thresholding(eigenvals, value, method='cond_number'):
+    if method == 'cond_number':
+        max_sigma = eigenvals[0]
+        n = len(eigenvals) - 1
+        cond_num = max_sigma / eigenvals[n]
+        while n > 4 and cond_num > value:
+            n-=1
+            cond_num= max_sigma / eigenvals[n]
+        eigenvals = eigenvals[:n+1]
+    elif method == 'topk':
+        eigenvals = eigenvals[:value]
+        n = value - 1 
+    else:
+        raise f'only two methods: cond_number, topk. Got {method}'
     return eigenvals, n+1
 
 def extract_spaces(A):
     rank = np.linalg.matrix_rank(A)
     U, S, Vh = np.linalg.svd(A)
-    S = S
     row_space = Vh[:rank, :].T
     null_space = Vh[rank: :].T
     col_space = U[:, :rank]
@@ -23,10 +28,10 @@ def extract_spaces(A):
 
     return [row_space, null_space, col_space, left_null], [U, S, Vh], rank
 
-def eigenval_modification(model, print_info=True, threshold=10):
+def eigenval_modification(model, print_info=True, threshold=10, method='cond_number'):
 
-    if os.path.exists(f'./DINO_{threshold}.pth'):
-        model.load_state_dict(torch.load(f'./DINO_{threshold}.pth', weights_only=True))
+    if os.path.exists(f'./DINO_{method}_{threshold}.pth'):
+        model.load_state_dict(torch.load(f'./DINO_{method}_{threshold}.pth', weights_only=True))
     else:
         device =  next(model.parameters()).device
         num_heads = model.num_heads
@@ -55,7 +60,7 @@ def eigenval_modification(model, print_info=True, threshold=10):
                 for head_id, head  in enumerate(block, start=1):
                     space_head, svd_head, rank = extract_spaces(head)
                     U, s, Vh = svd_head
-                    s, n = thresholding(s, threshold)
+                    s, n = thresholding(s, threshold, method)
                     S = np.zeros((U.shape[1], Vh.shape[0]), dtype=U.dtype)
                     S[:n, :n] = np.diag(s)
                     new_weights_head = U @ S @ Vh
@@ -72,13 +77,16 @@ def eigenval_modification(model, print_info=True, threshold=10):
             new_weights_block = np.stack(new_weights_block, axis=1) 
             new_weights_block = new_weights_block.reshape(-1, embed_dim) # orginal shape for torch.nn.Linear layer
             
-            model.blocks[block_id].attn.qkv.weight.data = torch.tensor(new_weights_block, device=device) 
+            orig_weights = model.blocks[block_id].attn.qkv.weight
+            new_tensor = torch.tensor(new_weights_block, dtype=orig_weights.dtype, device=orig_weights.device)
+            with torch.no_grad():
+                model.blocks[block_id].attn.qkv.weight.copy_(new_tensor)
 
             # For projection layer
             layer_weights = proj_layer_weights[block_id].cpu().numpy() 
             space_head, svd_head, rank = extract_spaces(layer_weights)
             U, s, Vh = svd_head
-            s, n = thresholding(s, threshold)
+            s, n = thresholding(s, threshold, method)
             S = np.zeros((U.shape[1], Vh.shape[0]), dtype=U.dtype)
             S[:n, :n] = np.diag(s)
             new_weights = U @ S @ Vh
@@ -90,9 +98,12 @@ def eigenval_modification(model, print_info=True, threshold=10):
                 print("#"*36 + f"Transformer Block {block_id:02d} - Proj" + "#"*37)
                 print(f"rank:{rank}     new num of σs: {n}  max σ: {max_sigma:.3f}   min σ: {min_sigma:.3f}   (max σ / min σ): {max_sigma/min_sigma:.3f}")
 
-            model.blocks[block_id].attn.proj.weight.data = torch.tensor(new_weights, device=device) 
+            orig_weights = model.blocks[block_id].attn.proj.weight
+            new_tensor = torch.tensor(new_weights, dtype=orig_weights.dtype, device=orig_weights.device)
+            with torch.no_grad():
+                model.blocks[block_id].attn.proj.weight.copy_(new_tensor)
 
         print(f"Saving DINO_{threshold}.pth")
-        torch.save(model.state_dict(), f'DINO_{threshold}.pth')
+        torch.save(model.state_dict(), f'DINO_{method}_{threshold}.pth')
         
     return model
